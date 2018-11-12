@@ -81,17 +81,22 @@ func NewHandler(origin *url.URL) websocket.Server {
 func handshake(c *websocket.Config, req *http.Request) error {
 	o, err := websocket.Origin(c, req)
 	if err != nil {
-		log.Println("bad websocket origin:", err)
+		log.Println("bad websocket origin (1):", err)
 		return websocket.ErrBadWebSocketOrigin
 	}
 	_, port, err := net.SplitHostPort(c.Origin.Host)
 	if err != nil {
-		log.Println("bad websocket origin:", err)
+		log.Println("bad websocket origin (2: SplitHostPort):", err)
+		log.Printf("c.Origin.Host: %v", c.Origin.Host)
+		log.Println("net.SplitHostPort(c.Origin.Host): %v", port)
 		return websocket.ErrBadWebSocketOrigin
 	}
 	ok := c.Origin.Scheme == o.Scheme && (c.Origin.Host == o.Host || c.Origin.Host == net.JoinHostPort(o.Host, port))
 	if !ok {
-		log.Println("bad websocket origin:", o)
+		log.Println("bad websocket origin (3):", o)
+		log.Printf("c.Origin.Scheme: %v, o.Scheme: %v", c.Origin.Scheme, o.Scheme)
+		log.Printf("c.Origin.Host: %v, o.Host: %v", c.Origin.Host, o.Host)
+		log.Printf("c.Origin.Host: %v, net.JoinHostPort(o.Host, port): %v", c.Origin.Host, net.JoinHostPort(o.Host, port))
 		return websocket.ErrBadWebSocketOrigin
 	}
 	log.Println("accepting connection from:", req.RemoteAddr)
